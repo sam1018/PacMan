@@ -1,14 +1,28 @@
+// C Libraries
 #include <math.h>
 #include <stdlib.h>
-#include <queue>
-#include <glut.h>
-#include <iostream>
 #include <time.h>
 
-using namespace std;
+// C++ libraries
+#include <queue>
+#include <iostream>
+#include <fstream>
 
-const double EPS = .0000001;
-const double FPS = 60;
+// boost libraries
+#include <boost\geometry.hpp>
+#include <boost\geometry\geometries\point_xy.hpp>
+
+// glut library
+#include <glut.h>
+
+// 
+#include "GameSettings.h"
+
+// using declarations
+using namespace std;
+using namespace boost::geometry;
+
+//const double FPS = 60;
 const double AMMO_SPIN_PER_SEC = 1;
 const double FACE_CIRCLE_DRAW_TIME_IN_SEC = 2;
 
@@ -17,12 +31,7 @@ double herox, heroy, enemyx, enemyy;
 int totalh, totale, denemy, dhero = -1, dfire = -1, win = -1, shots;
 int pathSize, speedh, speede, speedf;
 double spin, p1, p2, firex, firey;
-
-struct point
-{
-    int x;
-    int y;
-} hero, enemy, fire[10];
+model::d2::point_xy<int> hero, enemy, fire[10];
 
 void end()
 {
@@ -227,7 +236,7 @@ void drawFire()
     {
         glPushMatrix();
 
-        glTranslatef(fire[i].y + .5, pathSize - .5 - fire[i].x, 0);
+        glTranslatef(fire[i].y() + .5, pathSize - .5 - fire[i].x(), 0);
         glRotatef(spin, 0, 1, 0);
         circle(7, 4);
 
@@ -415,8 +424,8 @@ void setMaze()
 void bfs()
 {
     int i;
-    point u, v, temp;
-    queue <point> q;
+    model::d2::point_xy<int> u, v, temp;
+    queue <model::d2::point_xy<int>> q;
     bool d[20][20];
     int p[20][20][2];
 
@@ -429,53 +438,51 @@ void bfs()
         q.pop();
         for (i = 0; i < 4; i++)
         {
-            if (!edge[u.x][u.y][i])
+            if (!edge[u.x()][u.y()][i])
             {
                 v = u;
                 if (i == 0)
                 {
-                    v.y++;
+                    v.y(v.y() + 1);
                 }
                 if (i == 1)
                 {
-                    v.x++;
+                    v.x(v.x() + 1);
                 }
                 if (i == 2)
                 {
-                    v.y--;
+                    v.y(v.y() - 1);
                 }
                 if (i == 3)
                 {
-                    v.x--;
+                    v.x(v.x() - 1);
                 }
 
-                if (!d[v.x][v.y])
+                if (!d[v.x()][v.y()])
                 {
                     q.push(v);
-                    d[v.x][v.y] = 1;
-                    p[v.x][v.y][0] = u.x;
-                    p[v.x][v.y][1] = u.y;
+                    d[v.x()][v.y()] = 1;
+                    p[v.x()][v.y()][0] = u.x();
+                    p[v.x()][v.y()][1] = u.y();
                 }
 
-                if (v.x == hero.x && v.y == hero.y)
-                {
-                    break;
-                }
+                v.x(hero.x());
+                v.y(hero.y());
             }
         }
     }
 
     u = hero;
-    while (p[u.x][u.y][0] != enemy.x || p[u.x][u.y][1] != enemy.y)
+    while (p[u.x()][u.y()][0] != enemy.x() || p[u.x()][u.y()][1] != enemy.y())
     {
-        temp.x = p[u.x][u.y][0];
-        temp.y = p[u.x][u.y][1];
+        temp.x(p[u.x()][u.y()][0]);
+        temp.y(p[u.x()][u.y()][1]);
         u = temp;
     }
 
-    if (u.x == enemy.x)
+    if (u.x() == enemy.x())
     {
-        if (u.y == enemy.y + 1)
+        if (u.y() == enemy.y() + 1)
         {
             denemy = 0;
         }
@@ -486,7 +493,7 @@ void bfs()
     }
     else
     {
-        if (u.x == enemy.x + 1)
+        if (u.x() == enemy.x() + 1)
         {
             denemy = 1;
         }
@@ -522,26 +529,26 @@ void menemy()
     {
         if (denemy == 1)
         {
-            enemy.x++;
+            enemy.x(enemy.x() + 1);
         }
         if (denemy == 2)
         {
-            enemy.y--;
+            enemy.y(enemy.y() - 1);
         }
         if (denemy == 0)
         {
-            enemy.y++;
+            enemy.y(enemy.y() + 1);
         }
         if (denemy == 3)
         {
-            enemy.x--;
+            enemy.x(enemy.x() - 1);
         }
 
         totale = 0;
         bfs();
     }
 
-    if (enemy.x == hero.x && enemy.y == hero.y)
+    if (enemy.x() == hero.x() && enemy.y() == hero.y())
     {
         win = 0;
     }
@@ -577,19 +584,19 @@ void mhero()
     {
         if (dhero == 1)
         {
-            hero.x++;
+            hero.x(hero.x() + 1);
         }
         if (dhero == 2)
         {
-            hero.y--;
+            hero.y(hero.y() - 1);
         }
         if (dhero == 0)
         {
-            hero.y++;
+            hero.y(hero.y() + 1);
         }
         if (dhero == 3)
         {
-            hero.x--;
+            hero.x(hero.x() - 1);
         }
 
         totalh = 0;
@@ -597,13 +604,13 @@ void mhero()
 
         for (i = 0; i < shots; i++)
         {
-            if (hero.x == fire[i].x && hero.y == fire[i].y)
+            if (hero.x() == fire[i].x() && hero.y() == fire[i].y())
             {
                 foundf = 1;
             }
         }
 
-        if (hero.x == pathSize - 1 && hero.y == pathSize - 1)
+        if (hero.x() == pathSize - 1 && hero.y() == pathSize - 1)
         {
             win = 1;
         }
@@ -637,7 +644,7 @@ void mfire()
             offy -= 1;
         }
 
-        if (abs(firex + offx - enemyx) < EPS && abs(firey + offy - enemyy) < EPS)
+        if (abs(firex + offx - enemyx) < 0 && abs(firey + offy - enemyy) < 0)
         {
             dfire = -1;
 
@@ -646,8 +653,8 @@ void mfire()
             enemyx = pathSize - .5;
             enemyy = pathSize - .5;
 
-            enemy.x = 0;
-            enemy.y = pathSize - 1;
+            enemy.x(0);
+            enemy.y(pathSize - 1);
 
             bfs();
         }
@@ -658,7 +665,7 @@ void move()
 {
     static double prevClock = 0;
     double newClock = clock();
-    if ((newClock - prevClock) / CLOCKS_PER_SEC > 1.0 / FPS)
+    if ((newClock - prevClock) / CLOCKS_PER_SEC > 1.0 / GameSettings::FPS())
     {
         prevClock = clock();
     }
@@ -675,7 +682,7 @@ void move()
         mhero();
         mfire();
 
-        spin += (AMMO_SPIN_PER_SEC * 360) / FPS;
+        spin += (AMMO_SPIN_PER_SEC * 360) / GameSettings::FPS();
         if (spin == 360)
         {
             spin = 0;
@@ -684,10 +691,10 @@ void move()
 
     else
     {
-        p1 += (1000 / FACE_CIRCLE_DRAW_TIME_IN_SEC) / FPS;
+        p1 += (1000 / FACE_CIRCLE_DRAW_TIME_IN_SEC) / GameSettings::FPS();
         if (p1 >= 1000)
         {
-            p2 += (1000 / FACE_CIRCLE_DRAW_TIME_IN_SEC) / FPS;
+            p2 += (1000 / FACE_CIRCLE_DRAW_TIME_IN_SEC) / GameSettings::FPS();
         }
 
         if (p2 >= 495)
@@ -721,7 +728,7 @@ void keyboard(unsigned char key, int x, int y)
     {
     case 's':
     case 'k':
-        if (!edge[hero.x][hero.y][1] && !totalh)
+        if (!edge[hero.x()][hero.y()][1] && !totalh)
         {
             dhero = 1;
             glutIdleFunc(move);
@@ -729,7 +736,7 @@ void keyboard(unsigned char key, int x, int y)
         break;
     case 'a':
     case 'j':
-        if (!edge[hero.x][hero.y][2] && !totalh)
+        if (!edge[hero.x()][hero.y()][2] && !totalh)
         {
             dhero = 2;
             glutIdleFunc(move);
@@ -737,7 +744,7 @@ void keyboard(unsigned char key, int x, int y)
         break;
     case 'd':
     case 'l':
-        if (!edge[hero.x][hero.y][0] && !totalh)
+        if (!edge[hero.x()][hero.y()][0] && !totalh)
         {
             dhero = 0;
             glutIdleFunc(move);
@@ -745,29 +752,29 @@ void keyboard(unsigned char key, int x, int y)
         break;
     case 'w':
     case 'i':
-        if (!edge[hero.x][hero.y][3] && !totalh)
+        if (!edge[hero.x()][hero.y()][3] && !totalh)
         {
             dhero = 3;
             glutIdleFunc(move);
         }
         break;
     case 'q':
-        if (foundf && (hero.x == enemy.x || hero.y == enemy.y))
+        if (foundf && (hero.x() == enemy.x() || hero.y() == enemy.y()))
         {
             foundf = 0;
-            if (hero.x < enemy.x)
+            if (hero.x() < enemy.x())
             {
                 dfire = 1;
             }
-            if (hero.x > enemy.x)
+            if (hero.x() > enemy.x())
             {
                 dfire = 3;
             }
-            if (hero.y < enemy.y)
+            if (hero.y() < enemy.y())
             {
                 dfire = 0;
             }
-            if (hero.y > enemy.y)
+            if (hero.y() > enemy.y())
             {
                 dfire = 2;
             }
@@ -806,10 +813,10 @@ void init()
     }
     speedf = speedh;
 
-    hero.x = 0;
-    hero.y = 0;
-    enemy.x = 0;
-    enemy.y = pathSize - 1;
+    hero.x(0);
+    hero.y(0);
+    enemy.x(0);
+    enemy.y(pathSize - 1);
 
     herox = .5;
     heroy = pathSize - .5;
@@ -817,17 +824,17 @@ void init()
     enemyx = pathSize - .5;
     enemyy = pathSize - .5;
 
-    fire[0].x = 4;
-    fire[0].y = 0;
+    fire[0].x(4);
+    fire[0].y(0);
 
-    fire[1].x = 4;
-    fire[1].y = 7;
+    fire[1].x(4);
+    fire[1].y(7);
 
-    fire[2].x = 2;
-    fire[2].y = 5;
+    fire[2].x(2);
+    fire[2].y(5);
 
-    fire[3].x = 2;
-    fire[3].y = 3;
+    fire[3].x(2);
+    fire[3].y(3);
 }
 
 int main(int argc, char** argv)

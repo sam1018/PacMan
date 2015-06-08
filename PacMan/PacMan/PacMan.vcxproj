@@ -55,12 +55,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../3rdParty/inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdParty/glut;C:\Users\Samiul\Documents\Libraries\boost_1_58_0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../3rdParty/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../3rdParty/glut;C:\Users\Samiul\Documents\Libraries\boost_1_58_0\bin\boost\bin.v2\libs\system\build\msvc-14.0\debug\link-static\threading-multi;C:\Users\Samiul\Documents\Libraries\boost_1_58_0\bin\boost\bin.v2\libs\filesystem\build\msvc-14.0\debug\link-static\threading-multi</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +82,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="GameSettings.cpp" />
+    <ClCompile Include="Source.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../3rdParty/glut;C:\Users\Samiul\Documents\Libraries\boost_1_58_0</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameSettings.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
