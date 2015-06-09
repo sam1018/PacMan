@@ -1,19 +1,23 @@
-// C Libraries
+// C headers
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
 
-// C++ libraries
+// C++ headers
 #include <queue>
 #include <iostream>
 #include <fstream>
 
-// boost libraries
+// boost headers
 #include <boost\geometry.hpp>
 #include <boost\geometry\geometries\point_xy.hpp>
 
-// glut library
+// glut header
 #include <glut.h>
+
+// Windows headers
+#include <Windows.h>
+#include <tchar.h>
 
 // 
 #include "GameSettings.h"
@@ -845,12 +849,17 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize((pathSize + 2) * 50, (pathSize + 2) * 50);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow("PicMan");
+    glutCreateWindow("PacMan");
     initwindow();
     setMaze();
     bfs();
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
+
+    HWND hWnd = FindWindow(NULL, _T("PacMan"));
+    SetForegroundWindow(hWnd);
+
+
     glutMainLoop();
 
     return 0;
